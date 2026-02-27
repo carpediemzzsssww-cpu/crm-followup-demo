@@ -8,9 +8,9 @@ import CustomerList from './pages/CustomerList';
 export default function App() {
   return (
     <div className="min-h-screen bg-neutral-bg">
+      <TopBar />
       <Sidebar />
-      <div className="lg:ml-[220px]">
-        <TopBar />
+      <div className="pt-12 lg:ml-[220px]">
         <Routes>
           <Route path="/customers" element={<CustomerList />} />
           <Route path="/customers/:id" element={<CustomerDetail />} />

@@ -1,5 +1,8 @@
 import { useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { textOfValue, useI18n } from '../../i18n';
+import { getServiceLineLabel } from '../../constants/followupMeta';
+import { getPersonLabel } from '../../mock/personnel';
 import Badge from '../../components/ui/Badge';
 import { customers } from '../../mock/customers';
 import { useFollowUpStore } from '../../store/followUpStore';
@@ -7,6 +10,7 @@ import { daysAgo } from '../../utils/datetime';
 
 export default function CustomerList() {
   const navigate = useNavigate();
+  const { locale, t } = useI18n();
   const { state } = useFollowUpStore();
 
   const customerStats = useMemo(() => {
@@ -40,7 +44,7 @@ export default function CustomerList() {
     <main className="min-h-screen bg-neutral-bg px-4 py-4 sm:px-6 lg:px-8 lg:py-6">
       <div className="mx-auto max-w-7xl">
         <header className="mb-4">
-          <h1 className="text-xl font-semibold text-text-primary">CRM 客户列表</h1>
+          <h1 className="text-xl font-semibold text-text-primary">{t('customerList.title')}</h1>
         </header>
 
         <section className="overflow-hidden rounded-card border border-border-color bg-white shadow-card">
@@ -49,29 +53,31 @@ export default function CustomerList() {
               <thead className="bg-slate-50">
                 <tr>
                   <th className="px-4 py-3 text-left text-xs font-medium tracking-wide text-text-secondary">
-                    客户名称
+                    {t('customerList.name')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium tracking-wide text-text-secondary">
-                    业务线标签
+                    {t('customerList.serviceLine')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium tracking-wide text-text-secondary">
-                    客户分层
+                    {t('customerList.segment')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium tracking-wide text-text-secondary">
-                    负责销售
+                    {t('customerList.owner')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium tracking-wide text-text-secondary">
-                    累计跟进
+                    {t('customerList.totalFollowups')}
                   </th>
                   <th className="px-4 py-3 text-left text-xs font-medium tracking-wide text-text-secondary">
-                    最近跟进
+                    {t('customerList.latestFollowup')}
                   </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {customers.map((customer) => {
                   const stats = customerStats.get(customer.customer_id);
-                  const latestText = stats?.latestTime ? `${daysAgo(stats.latestTime)}天前` : '暂无记录';
+                  const latestText = stats?.latestTime
+                    ? t('time.daysAgo', { days: daysAgo(stats.latestTime) })
+                    : t('common.noRecords');
 
                   return (
                     <tr
@@ -85,7 +91,7 @@ export default function CustomerList() {
                           onClick={(event) => event.stopPropagation()}
                           className="font-medium text-primary hover:underline"
                         >
-                          {customer.name}
+                          {textOfValue(customer.name, locale)}
                         </Link>
                       </td>
                       <td className="px-4 py-3">
@@ -95,7 +101,7 @@ export default function CustomerList() {
                               key={tag}
                               className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs text-slate-700"
                             >
-                              {tag}
+                              {getServiceLineLabel(tag, locale)}
                             </span>
                           ))}
                         </div>
@@ -103,7 +109,7 @@ export default function CustomerList() {
                       <td className="px-4 py-3 text-sm text-text-primary">
                         <Badge variant="segment" value={customer.customer_segment} />
                       </td>
-                      <td className="px-4 py-3 text-sm text-text-primary">{customer.assigned_to}</td>
+                      <td className="px-4 py-3 text-sm text-text-primary">{getPersonLabel(customer.assigned_to, locale)}</td>
                       <td className="px-4 py-3 text-sm text-text-primary">{stats?.total ?? 0}</td>
                       <td className="px-4 py-3 text-sm text-text-primary">{latestText}</td>
                     </tr>

@@ -7,6 +7,7 @@ export default {
       colors: {
         primary: '#1B4FD8',
         'primary-light': '#EEF3FF',
+        'nav-active': '#1565C0',
         success: '#16A34A',
         warning: '#D97706',
         danger: '#DC2626',
@@ -15,7 +16,7 @@ export default {
         'text-primary': '#0F172A',
         'text-secondary': '#64748B',
         'voided-bg': '#F1F5F9',
-        'sidebar-bg': '#1E293B'
+        'sidebar-bg': '#0F3A6E'
       },
       borderRadius: {
         card: '8px',

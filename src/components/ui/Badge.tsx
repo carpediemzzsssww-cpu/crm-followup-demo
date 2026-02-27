@@ -1,4 +1,5 @@
 import type { Customer, FollowUpEvent } from '../../types';
+import { textOf, useI18n } from '../../i18n';
 import {
   FOLLOW_UP_TYPE_META,
   INTENTION_META,
@@ -34,6 +35,8 @@ function joinClassName(...parts: Array<string | undefined>): string {
 }
 
 export default function Badge(props: BadgeProps) {
+  const { locale } = useI18n();
+
   if (props.variant === 'intention') {
     const meta = INTENTION_META[props.value];
     return (
@@ -44,7 +47,7 @@ export default function Badge(props: BadgeProps) {
           props.className
         )}
       >
-        {meta.label}
+        {textOf(meta.label, locale)}
       </span>
     );
   }
@@ -59,7 +62,7 @@ export default function Badge(props: BadgeProps) {
           props.className
         )}
       >
-        {meta.label}
+        {textOf(meta.label, locale)}
       </span>
     );
   }
@@ -73,7 +76,7 @@ export default function Badge(props: BadgeProps) {
       )}
     >
       <span className={joinClassName('h-1.5 w-1.5 rounded-full', meta.dotClassName)} />
-      {meta.label}
+      {textOf(meta.label, locale)}
     </span>
   );
 }

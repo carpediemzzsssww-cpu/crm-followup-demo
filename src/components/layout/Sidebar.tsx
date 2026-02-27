@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { useI18n } from '../../i18n';
 
 interface IconProps {
   className?: string;
@@ -52,29 +53,29 @@ function ChartIcon({ className = 'h-4 w-4' }: IconProps) {
 }
 
 export default function Sidebar() {
-  return (
-    <aside className="fixed inset-y-0 left-0 z-30 hidden w-[220px] flex-col bg-sidebar-bg px-4 py-5 text-slate-300 lg:flex">
-      <div className="px-2 text-xl font-semibold tracking-wide text-white">CargoWare</div>
+  const { t } = useI18n();
 
-      <nav className="mt-8 flex-1 space-y-1">
+  return (
+    <aside className="fixed bottom-0 left-0 top-12 z-30 hidden w-[220px] flex-col bg-sidebar-bg px-4 py-5 text-slate-300 lg:flex">
+      <nav className="mt-2 flex-1 space-y-1">
         <button
           type="button"
           className="flex w-full items-center gap-3 rounded-control px-3 py-2 text-left text-sm font-medium text-slate-300 transition hover:bg-white/10"
         >
           <HomeIcon />
-          首页
+          {t('sidebar.home')}
         </button>
 
         <NavLink
           to="/customers"
           className={({ isActive }) =>
             `flex items-center gap-3 rounded-control px-3 py-2 text-sm font-medium transition ${
-              isActive ? 'bg-primary text-white' : 'text-slate-300 hover:bg-white/10'
+              isActive ? 'bg-nav-active text-white' : 'text-slate-300 hover:bg-white/10'
             }`
           }
         >
           <UsersIcon />
-          CRM客户
+          {t('sidebar.crmCustomers')}
         </NavLink>
 
         <button
@@ -82,7 +83,7 @@ export default function Sidebar() {
           className="flex w-full items-center gap-3 rounded-control px-3 py-2 text-left text-sm font-medium text-slate-300 transition hover:bg-white/10"
         >
           <BoxIcon />
-          订单管理
+          {t('sidebar.orderManagement')}
         </button>
 
         <button
@@ -90,7 +91,7 @@ export default function Sidebar() {
           className="flex w-full items-center gap-3 rounded-control px-3 py-2 text-left text-sm font-medium text-slate-300 transition hover:bg-white/10"
         >
           <WalletIcon />
-          财务
+          {t('sidebar.finance')}
         </button>
 
         <button
@@ -98,15 +99,15 @@ export default function Sidebar() {
           className="flex w-full items-center gap-3 rounded-control px-3 py-2 text-left text-sm font-medium text-slate-300 transition hover:bg-white/10"
         >
           <ChartIcon />
-          报表
+          {t('sidebar.reports')}
         </button>
       </nav>
 
       <div className="flex items-center gap-3 rounded-card border border-slate-700/70 bg-slate-800/70 p-3">
         <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-600 text-sm font-semibold text-white">
-          张
+          {t('sidebar.userShortName')}
         </div>
-        <p className="text-sm font-medium text-slate-100">张销售</p>
+        <p className="text-sm font-medium text-slate-100">{t('sidebar.userName')}</p>
       </div>
     </aside>
   );

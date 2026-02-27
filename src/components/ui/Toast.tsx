@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useI18n } from '../../i18n';
 
 export type ToastType = 'success' | 'error';
 
@@ -61,6 +62,7 @@ export function useToast() {
 }
 
 export default function Toast() {
+  const { t } = useI18n();
   const [items, setItems] = useState<ToastItem[]>([]);
 
   useEffect(() => {
@@ -95,7 +97,7 @@ export default function Toast() {
             onClick={() => removeToast(item.id)}
             className="text-xs font-medium opacity-80 transition hover:opacity-100"
           >
-            关闭
+            {t('common.close')}
           </button>
         </div>
       ))}

@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
+import { textOf, textOfValue, useI18n } from '../../i18n';
 import { FOLLOW_UP_TYPE_META } from '../../constants/followupMeta';
+import { getPersonLabel } from '../../mock/personnel';
 import type { FollowUpEvent } from '../../types';
 import { formatToLocal } from '../../utils/datetime';
 import Badge from '../ui/Badge';
@@ -23,9 +25,11 @@ function getSummary(summary: string, expanded: boolean): { text: string; showTog
 }
 
 export default function EventCard({ event, onVoid }: EventCardProps) {
+  const { locale, t } = useI18n();
   const [expanded, setExpanded] = useState(false);
 
-  const summary = useMemo(() => getSummary(event.summary, expanded), [event.summary, expanded]);
+  const summaryText = textOfValue(event.summary, locale);
+  const summary = useMemo(() => getSummary(summaryText, expanded), [summaryText, expanded]);
   const typeMeta = FOLLOW_UP_TYPE_META[event.follow_up_type];
   const isVoided = event.status === 'voided';
 
@@ -35,18 +39,18 @@ export default function EventCard({ event, onVoid }: EventCardProps) {
         isVoided
           ? 'border-l-slate-400 bg-voided-bg opacity-50'
           : 'border-l-primary'
-      }`}
+      } p-3`}
     >
       <header className="flex flex-wrap items-center gap-x-3 gap-y-2">
-        <span className="inline-flex items-center gap-1.5 text-sm font-medium text-text-primary">
+        <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-text-primary">
           <span className={`h-2.5 w-2.5 rounded-full ${typeMeta.dotClassName}`} />
-          {typeMeta.label}
+          {textOf(typeMeta.label, locale)}
         </span>
-        <span className="text-sm text-text-secondary">{formatToLocal(event.follow_up_time)}</span>
-        <span className="text-sm text-text-secondary">{event.created_by}</span>
+        <span className="text-[13px] text-text-secondary">{formatToLocal(event.follow_up_time)}</span>
+        <span className="text-[13px] text-text-secondary">{getPersonLabel(event.created_by, locale)}</span>
       </header>
 
-      <div className="mt-3 text-sm leading-6 text-text-primary">
+      <div className="mt-3 text-[13px] leading-5 text-text-primary">
         <span>{summary.text}</span>
         {summary.showToggle ? (
           <button
@@ -54,45 +58,48 @@ export default function EventCard({ event, onVoid }: EventCardProps) {
             onClick={() => setExpanded((value) => !value)}
             className="ml-2 text-primary hover:underline"
           >
-            {expanded ? '收起' : '展开'}
+            {expanded ? t('common.collapse') : t('common.expand')}
           </button>
         ) : null}
       </div>
 
-      <footer className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3">
-        <div className="flex flex-wrap items-center gap-2 text-sm text-text-secondary">
+      <footer
+        className={`mt-4 flex flex-wrap items-center gap-3 border-t border-slate-100 pt-3 ${
+          isVoided ? 'justify-start' : 'justify-between'
+        }`}
+      >
+        <div className="flex flex-wrap items-center gap-2 text-[13px] text-text-secondary">
           {event.intention_level ? <Badge variant="intention" value={event.intention_level} /> : null}
           {event.next_follow_up_time ? (
             <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
-              下次跟进：{formatToLocal(event.next_follow_up_time)}
+              {t('event.nextFollowup')} {formatToLocal(event.next_follow_up_time)}
             </span>
           ) : null}
           {isVoided ? (
             <span className="inline-flex items-center rounded-full bg-slate-700 px-2.5 py-0.5 text-xs font-medium text-white">
-              已作废
+              {t('event.voided')}
             </span>
           ) : null}
         </div>
 
-        <button
-          type="button"
-          onClick={() => onVoid(event)}
-          disabled={isVoided}
-          className={`inline-flex h-9 items-center justify-center rounded-control px-4 text-sm font-medium ${
-            isVoided
-              ? 'cursor-not-allowed bg-slate-100 text-slate-400'
-              : 'bg-red-50 text-danger hover:bg-red-100'
-          }`}
-        >
-          作废
-        </button>
+        {!isVoided ? (
+          <button
+            type="button"
+            onClick={() => onVoid(event)}
+            className="inline-flex h-9 items-center justify-center rounded-control bg-red-50 px-4 text-sm font-medium text-danger hover:bg-red-100"
+          >
+            {t('event.void')}
+          </button>
+        ) : null}
       </footer>
 
       {isVoided ? (
         <div className="mt-3 rounded-control bg-slate-100 p-3 text-xs leading-5 text-slate-600">
-          <p>作废原因：{event.void_reason || '未填写'}</p>
-          <p>作废人：{event.voided_by || '未记录'}</p>
-          <p>作废时间：{event.voided_at ? formatToLocal(event.voided_at) : '未记录'}</p>
+          <p>{t('event.voidReason')} {textOfValue(event.void_reason, locale) || t('common.notFilled')}</p>
+          <p>
+            {t('event.voidBy')} {event.voided_by ? getPersonLabel(event.voided_by, locale) : t('common.notRecorded')}
+          </p>
+          <p>{t('event.voidAt')} {event.voided_at ? formatToLocal(event.voided_at) : t('common.notRecorded')}</p>
         </div>
       ) : null}
     </article>

@@ -76,7 +76,9 @@ export function followUpReducer(
           return {
             ...event,
             status: "voided",
-            void_reason: action.payload.void_reason ?? "记录作废",
+            void_reason:
+              action.payload.void_reason ??
+              { zh: "记录作废", en: "Record voided" },
             voided_by: action.payload.voided_by,
             voided_at: voidedAt,
           };

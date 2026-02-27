@@ -1,3 +1,4 @@
+import { textOf, useI18n } from '../../i18n';
 import { FOLLOW_UP_TYPE_META } from '../../constants/followupMeta';
 import type { FollowUpEvent } from '../../types';
 import { daysAgo } from '../../utils/datetime';
@@ -20,6 +21,7 @@ function countEventsThisMonth(events: FollowUpEvent[]): number {
 }
 
 export default function OverviewBar({ events }: OverviewBarProps) {
+  const { locale, t } = useI18n();
   const normalEvents = events.filter((event) => event.status === 'normal');
 
   const totalCount = normalEvents.length;
@@ -30,7 +32,9 @@ export default function OverviewBar({ events }: OverviewBarProps) {
         new Date(right.follow_up_time).getTime() - new Date(left.follow_up_time).getTime()
     )[0];
 
-  const latestText = latestEvent ? `${daysAgo(latestEvent.follow_up_time)}天前` : '暂无记录';
+  const latestText = latestEvent
+    ? t('time.daysAgo', { days: daysAgo(latestEvent.follow_up_time) })
+    : t('common.noRecords');
   const monthCount = countEventsThisMonth(normalEvents);
 
   const typeCounts = TRACKED_TYPES.map((type) => ({
@@ -41,29 +45,29 @@ export default function OverviewBar({ events }: OverviewBarProps) {
   return (
     <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <article className="card-enterprise">
-        <p className="text-xs text-text-secondary">累计跟进次数</p>
+        <p className="text-xs text-text-secondary">{t('overview.totalFollowups')}</p>
         <p className="mt-2 text-2xl font-semibold text-text-primary">{totalCount}</p>
       </article>
 
       <article className="card-enterprise">
-        <p className="text-xs text-text-secondary">最近跟进</p>
+        <p className="text-xs text-text-secondary">{t('overview.latestFollowup')}</p>
         <p className="mt-2 text-2xl font-semibold text-text-primary">{latestText}</p>
       </article>
 
       <article className="card-enterprise">
-        <p className="text-xs text-text-secondary">本月跟进</p>
+        <p className="text-xs text-text-secondary">{t('overview.monthlyFollowups')}</p>
         <p className="mt-2 text-2xl font-semibold text-text-primary">{monthCount}</p>
       </article>
 
       <article className="card-enterprise">
-        <p className="text-xs text-text-secondary">类型分布</p>
+        <p className="text-xs text-text-secondary">{t('overview.typeDistribution')}</p>
         <div className="mt-3 flex flex-wrap items-center gap-3">
           {typeCounts.map((item) => {
             const meta = FOLLOW_UP_TYPE_META[item.type];
             return (
               <span key={item.type} className="inline-flex items-center gap-1.5 text-sm text-text-primary">
                 <span className={`h-2 w-2 rounded-full ${meta.dotClassName}`} />
-                {meta.shortLabel}
+                {textOf(meta.shortLabel, locale)}
                 {item.count}
               </span>
             );

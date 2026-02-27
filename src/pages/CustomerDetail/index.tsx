@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { textOfValue, useI18n } from '../../i18n';
 import EventList from '../../components/followup/EventList';
 import FilterBar, { type FilterValue } from '../../components/followup/FilterBar';
 import NewEventDrawer, { type NewEventPayload } from '../../components/followup/NewEventDrawer';
@@ -12,15 +13,16 @@ import type { FollowUpEvent } from '../../types';
 import { generateId } from '../../utils/uuid';
 
 const tabs = [
-  { key: 'basic', label: '基本信息' },
-  { key: 'followup', label: '跟进记录' },
-  { key: 'opportunity', label: '商机' },
-  { key: 'documents', label: '文档' }
+  { key: 'basic', labelKey: 'customerDetail.tab.basic' },
+  { key: 'followup', labelKey: 'customerDetail.tab.followup' },
+  { key: 'opportunity', labelKey: 'customerDetail.tab.opportunity' },
+  { key: 'documents', labelKey: 'customerDetail.tab.documents' }
 ] as const;
 
 type TabKey = (typeof tabs)[number]['key'];
 
 export default function CustomerDetail() {
+  const { locale, t } = useI18n();
   const { id } = useParams<{ id: string }>();
   const customer = customers.find((item) => item.customer_id === id);
 
@@ -64,14 +66,16 @@ export default function CustomerDetail() {
     return (
       <main className="min-h-screen bg-neutral-bg px-4 py-6 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl rounded-card border border-border-color bg-white p-6">
-          <p className="text-text-primary">客户不存在或已被删除。</p>
+          <p className="text-text-primary">{t('customerDetail.notFound')}</p>
           <Link to="/customers" className="mt-3 inline-block text-primary hover:underline">
-            返回客户列表
+            {t('customerDetail.backToList')}
           </Link>
         </div>
       </main>
     );
   }
+
+  const customerName = textOfValue(customer.name, locale);
 
   const handleCreateEvent = (payload: NewEventPayload) => {
     const now = new Date().toISOString();
@@ -103,7 +107,7 @@ export default function CustomerDetail() {
       payload: {
         event_id: eventId,
         void_reason: reason,
-        voided_by: '当前用户',
+        voided_by: 'current_user',
         voided_at: new Date().toISOString()
       }
     });
@@ -116,15 +120,15 @@ export default function CustomerDetail() {
       <div className="mx-auto max-w-7xl space-y-4">
         <nav className="text-sm text-text-secondary">
           <Link to="/customers" className="hover:text-primary hover:underline">
-            CRM客户列表
+            {t('customerDetail.listCrumb')}
           </Link>
           <span className="mx-2">&gt;</span>
-          <span className="text-text-primary">{customer.name}</span>
+          <span className="text-text-primary">{customerName}</span>
         </nav>
 
         <header className="rounded-card border border-border-color bg-white p-4 shadow-card">
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-xl font-semibold text-text-primary">{customer.name}</h1>
+            <h1 className="text-xl font-semibold text-text-primary">{customerName}</h1>
             <Badge variant="segment" value={customer.customer_segment} />
           </div>
 
@@ -141,7 +145,7 @@ export default function CustomerDetail() {
                       : 'border-transparent font-medium text-text-secondary hover:text-text-primary'
                   }`}
                 >
-                  {tab.label}
+                  {t(tab.labelKey)}
                 </button>
               ))}
             </div>
@@ -161,7 +165,7 @@ export default function CustomerDetail() {
           </section>
         ) : (
           <section className="rounded-card border border-border-color bg-white py-20 text-center text-text-secondary shadow-card">
-            功能开发中
+            {t('common.comingSoon')}
           </section>
         )}
       </div>

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useI18n } from '../../i18n';
 
 type ConfirmVariant = 'primary' | 'danger';
 
@@ -23,13 +24,15 @@ export default function ConfirmDialog({
   open,
   title,
   message,
-  cancelText = '取消',
-  confirmText = '确认',
+  cancelText,
+  confirmText,
   confirmVariant = 'primary',
   confirmDisabled = false,
   onCancel,
   onConfirm
 }: ConfirmDialogProps) {
+  const { t } = useI18n();
+
   if (!open) {
     return null;
   }
@@ -38,7 +41,7 @@ export default function ConfirmDialog({
     <div className="fixed inset-0 z-[80] flex items-center justify-center">
       <button
         type="button"
-        aria-label="关闭弹窗"
+        aria-label={t('confirmDialog.closeAria')}
         className="absolute inset-0 bg-slate-900/55"
         onClick={onCancel}
       />
@@ -48,7 +51,7 @@ export default function ConfirmDialog({
 
         <div className="mt-6 flex items-center justify-end gap-3">
           <button type="button" onClick={onCancel} className="btn-secondary">
-            {cancelText}
+            {cancelText ?? t('common.cancel')}
           </button>
           <button
             type="button"
@@ -56,7 +59,7 @@ export default function ConfirmDialog({
             disabled={confirmDisabled}
             className={`inline-flex h-9 items-center justify-center rounded-control px-4 text-sm font-medium transition ${confirmVariantClass[confirmVariant]}`}
           >
-            {confirmText}
+            {confirmText ?? t('common.confirm')}
           </button>
         </div>
       </section>

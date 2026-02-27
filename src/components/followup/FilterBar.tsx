@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
+import { textOf, useI18n } from '../../i18n';
 import { FOLLOW_UP_FILTER_OPTIONS } from '../../constants/followupMeta';
+import { getPersonLabel } from '../../mock/personnel';
 import type { FollowUpEvent } from '../../types';
 
 export interface FilterValue {
@@ -15,19 +17,25 @@ interface FilterBarProps {
 }
 
 export default function FilterBar({ events, value, onFilterChange, onNewClick }: FilterBarProps) {
+  const { locale, t } = useI18n();
+
   const persons = useMemo(() => {
-    const names = new Set<string>();
+    const ids = new Set<string>();
     events.forEach((event) => {
-      names.add(event.created_by);
+      ids.add(event.created_by);
     });
-    return Array.from(names).sort((left, right) => left.localeCompare(right, 'zh-CN'));
-  }, [events]);
+
+    const collator = new Intl.Collator(locale === 'zh' ? 'zh-CN' : 'en-US');
+    return Array.from(ids).sort((left, right) =>
+      collator.compare(getPersonLabel(left, locale), getPersonLabel(right, locale))
+    );
+  }, [events, locale]);
 
   return (
     <section className="card-enterprise flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
       <div className="flex flex-col gap-3 sm:flex-row">
         <label className="flex items-center gap-2 text-xs text-text-secondary">
-          <span>类型</span>
+          <span>{t('filter.type')}</span>
           <select
             className="input-enterprise min-w-[140px]"
             value={value.type}
@@ -38,14 +46,14 @@ export default function FilterBar({ events, value, onFilterChange, onNewClick }:
           >
             {FOLLOW_UP_FILTER_OPTIONS.map((item) => (
               <option key={item.value} value={item.value}>
-                {item.label}
+                {textOf(item.label, locale)}
               </option>
             ))}
           </select>
         </label>
 
         <label className="flex items-center gap-2 text-xs text-text-secondary">
-          <span>人员</span>
+          <span>{t('filter.person')}</span>
           <select
             className="input-enterprise min-w-[140px]"
             value={value.person}
@@ -54,10 +62,10 @@ export default function FilterBar({ events, value, onFilterChange, onNewClick }:
               onFilterChange({ ...value, person: nextPerson });
             }}
           >
-            <option value="all">全部人员</option>
-            {persons.map((name) => (
-              <option key={name} value={name}>
-                {name}
+            <option value="all">{t('filter.allPersons')}</option>
+            {persons.map((personId) => (
+              <option key={personId} value={personId}>
+                {getPersonLabel(personId, locale)}
               </option>
             ))}
           </select>
@@ -65,7 +73,7 @@ export default function FilterBar({ events, value, onFilterChange, onNewClick }:
       </div>
 
       <button type="button" onClick={onNewClick} className="btn-primary">
-        + 新增跟进
+        {t('filter.addFollowup')}
       </button>
     </section>
   );

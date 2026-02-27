@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useI18n } from '../../i18n';
 
 interface DrawerProps {
   open: boolean;
@@ -15,6 +16,8 @@ export default function Drawer({
   children,
   widthClassName = 'w-full max-w-xl'
 }: DrawerProps) {
+  const { t } = useI18n();
+
   if (!open) {
     return null;
   }
@@ -31,7 +34,7 @@ export default function Drawer({
               onClick={onClose}
               className="rounded-md px-2 py-1 text-sm text-text-secondary hover:bg-gray-100"
             >
-              关闭
+              {t('common.close')}
             </button>
           </header>
           <div className="px-6 py-5">{children}</div>

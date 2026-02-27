@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { textOf, useI18n } from '../../i18n';
 import {
   FOLLOW_UP_METHOD_OPTIONS,
   INTENTION_OPTIONS
@@ -56,6 +57,7 @@ function buildDefaultForm(time: string): FormState {
 }
 
 export default function NewEventDrawer({ open, onClose, onSubmit, onSave }: NewEventDrawerProps) {
+  const { locale, t } = useI18n();
   const submitHandler = onSave ?? onSubmit;
   const { success, error } = useToast();
 
@@ -93,15 +95,15 @@ export default function NewEventDrawer({ open, onClose, onSubmit, onSave }: NewE
     const next: FieldErrors = {};
 
     if (!form.follow_up_type) {
-      next.follow_up_type = '此项为必填';
+      next.follow_up_type = t('common.required');
     }
 
     if (!form.follow_up_time) {
-      next.follow_up_time = '此项为必填';
+      next.follow_up_time = t('common.required');
     }
 
     if (!form.summary.trim()) {
-      next.summary = '此项为必填';
+      next.summary = t('common.required');
     }
 
     return next;
@@ -137,14 +139,14 @@ export default function NewEventDrawer({ open, onClose, onSubmit, onSave }: NewE
     }
 
     if (!submitHandler) {
-      error('保存失败：未配置提交方法');
+      error(t('newEvent.saveFailedNoHandler'));
       setSubmitting(false);
       submitPendingRef.current = false;
       return;
     }
 
     const payload: NewEventPayload = {
-      created_by: '当前销售',
+      created_by: 'current_sales',
       follow_up_type: form.follow_up_type as FollowUpEvent['follow_up_type'],
       follow_up_time: new Date(form.follow_up_time).toISOString(),
       summary: form.summary.trim(),
@@ -157,10 +159,10 @@ export default function NewEventDrawer({ open, onClose, onSubmit, onSave }: NewE
 
     try {
       await Promise.resolve(submitHandler(payload));
-      success('新增跟进记录成功');
+      success(t('newEvent.saveSuccess'));
       onClose();
     } catch {
-      error('提交失败，请稍后重试');
+      error(t('newEvent.submitFailed'));
     } finally {
       setSubmitting(false);
       submitPendingRef.current = false;
@@ -180,19 +182,19 @@ export default function NewEventDrawer({ open, onClose, onSubmit, onSave }: NewE
       <div className={overlayClassName}>
         <button
           type="button"
-          aria-label="关闭新增跟进抽屉"
+          aria-label={t('newEvent.closeDrawerAria')}
           className={backdropClassName}
           onClick={handleAttemptClose}
         />
 
         <aside className={panelClassName}>
           <header className="flex items-center justify-between border-b border-border-color px-6 py-4">
-            <h2 className="text-base font-semibold text-text-primary">新增跟进记录</h2>
+            <h2 className="text-base font-semibold text-text-primary">{t('newEvent.title')}</h2>
             <button
               type="button"
               onClick={handleAttemptClose}
               className="inline-flex h-9 w-9 items-center justify-center rounded-control text-text-secondary transition hover:bg-slate-100 hover:text-text-primary"
-              aria-label="关闭"
+              aria-label={t('newEvent.closeAria')}
             >
               <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
                 <path d="M6 6L18 18M18 6L6 18" stroke="currentColor" strokeWidth="1.8" />
@@ -203,7 +205,7 @@ export default function NewEventDrawer({ open, onClose, onSubmit, onSave }: NewE
           <div className="flex-1 space-y-5 overflow-y-auto px-6 py-5">
             <section>
               <p className="mb-2 text-xs text-text-secondary">
-                跟进方式 <span className="text-danger">*</span>
+                {t('newEvent.method')} <span className="text-danger">*</span>
               </p>
               <div className="grid grid-cols-5 gap-2">
                 {FOLLOW_UP_METHOD_OPTIONS.map((item) => (
@@ -222,7 +224,7 @@ export default function NewEventDrawer({ open, onClose, onSubmit, onSave }: NewE
                         : 'border-border-color text-text-secondary hover:border-blue-200 hover:text-text-primary'
                     } ${errors.follow_up_type ? 'border-danger' : ''}`}
                   >
-                    {item.label}
+                    {textOf(item.label, locale)}
                   </button>
                 ))}
               </div>
@@ -231,7 +233,7 @@ export default function NewEventDrawer({ open, onClose, onSubmit, onSave }: NewE
 
             <section>
               <label htmlFor="follow_up_time" className="mb-2 block text-xs text-text-secondary">
-                跟进时间 <span className="text-danger">*</span>
+                {t('newEvent.time')} <span className="text-danger">*</span>
               </label>
               <input
                 id="follow_up_time"
@@ -250,13 +252,13 @@ export default function NewEventDrawer({ open, onClose, onSubmit, onSave }: NewE
 
             <section>
               <label htmlFor="summary" className="mb-2 block text-xs text-text-secondary">
-                沟通摘要 <span className="text-danger">*</span>
+                {t('newEvent.summary')} <span className="text-danger">*</span>
               </label>
               <textarea
                 id="summary"
                 maxLength={2000}
                 value={form.summary}
-                placeholder="请输入本次沟通摘要"
+                placeholder={t('newEvent.summaryPlaceholder')}
                 onChange={(event) => {
                   setForm((prev) => ({ ...prev, summary: event.target.value }));
                   if (errors.summary) {
@@ -277,7 +279,7 @@ export default function NewEventDrawer({ open, onClose, onSubmit, onSave }: NewE
             </section>
 
             <section>
-              <p className="mb-2 text-xs text-text-secondary">客户意向</p>
+              <p className="mb-2 text-xs text-text-secondary">{t('newEvent.intention')}</p>
               <div className="grid grid-cols-2 gap-2">
                 {INTENTION_OPTIONS.map((item) => (
                   <label
@@ -296,7 +298,7 @@ export default function NewEventDrawer({ open, onClose, onSubmit, onSave }: NewE
                       onChange={() => setForm((prev) => ({ ...prev, intention_level: item.value }))}
                       className="h-4 w-4 accent-primary"
                     />
-                    {item.label}
+                    {textOf(item.label, locale)}
                   </label>
                 ))}
               </div>
@@ -304,7 +306,7 @@ export default function NewEventDrawer({ open, onClose, onSubmit, onSave }: NewE
 
             <section>
               <label htmlFor="next_follow_up_date" className="mb-2 block text-xs text-text-secondary">
-                下次跟进时间
+                {t('newEvent.nextFollowupDate')}
               </label>
               <input
                 id="next_follow_up_date"
@@ -319,14 +321,14 @@ export default function NewEventDrawer({ open, onClose, onSubmit, onSave }: NewE
 
             <section>
               <label htmlFor="action_items" className="mb-2 block text-xs text-text-secondary">
-                后续行动项
+                {t('newEvent.actionItems')}
               </label>
               <input
                 id="action_items"
                 type="text"
                 value={form.action_items}
                 onChange={(event) => setForm((prev) => ({ ...prev, action_items: event.target.value }))}
-                placeholder="请输入后续行动项"
+                placeholder={t('newEvent.actionItemsPlaceholder')}
                 className="input-enterprise w-full"
               />
             </section>
@@ -334,13 +336,13 @@ export default function NewEventDrawer({ open, onClose, onSubmit, onSave }: NewE
 
           <footer className="flex items-center justify-end gap-3 border-t border-border-color px-6 py-4">
             <button type="button" onClick={handleAttemptClose} disabled={submitting} className="btn-secondary">
-              取消
+              {t('common.cancel')}
             </button>
             <button type="button" onClick={handleSubmit} disabled={submitting} className="btn-primary gap-2">
               {submitting ? (
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/50 border-t-white" />
               ) : null}
-              {submitting ? '提交中...' : '保存记录'}
+              {submitting ? t('newEvent.submitting') : t('newEvent.save')}
             </button>
           </footer>
         </aside>
@@ -348,10 +350,10 @@ export default function NewEventDrawer({ open, onClose, onSubmit, onSave }: NewE
 
       <ConfirmDialog
         open={closeConfirmOpen}
-        title="内容未保存，确认关闭？"
-        message="当前填写内容将不会保留。"
-        cancelText="继续编辑"
-        confirmText="确认关闭"
+        title={t('newEvent.closeConfirmTitle')}
+        message={t('newEvent.closeConfirmMessage')}
+        cancelText={t('newEvent.closeConfirmCancel')}
+        confirmText={t('newEvent.closeConfirmConfirm')}
         onCancel={() => setCloseConfirmOpen(false)}
         onConfirm={() => {
           setCloseConfirmOpen(false);

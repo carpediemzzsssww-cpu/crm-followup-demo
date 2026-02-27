@@ -1,3 +1,4 @@
+import { useI18n } from '../../i18n';
 import type { FollowUpEvent } from '../../types';
 import EventCard from './EventCard';
 
@@ -7,6 +8,8 @@ interface EventListProps {
 }
 
 export default function EventList({ events, onVoid }: EventListProps) {
+  const { t } = useI18n();
+
   if (events.length === 0) {
     return (
       <div className="card-enterprise flex min-h-72 flex-col items-center justify-center border-dashed px-4 py-10 text-center">
@@ -16,14 +19,14 @@ export default function EventList({ events, onVoid }: EventListProps) {
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 10v6m-3-3h6" />
           </svg>
         </div>
-        <p className="text-base font-medium text-text-primary">暂无跟进记录</p>
-        <p className="mt-1 text-sm text-text-secondary">点击「新增跟进」开始记录第一条</p>
+        <p className="text-base font-medium text-text-primary">{t('eventList.emptyTitle')}</p>
+        <p className="mt-1 text-sm text-text-secondary">{t('eventList.emptyDescription')}</p>
       </div>
     );
   }
 
   return (
-    <section className="space-y-3">
+    <section className="space-y-2">
       {events.map((event) => (
         <EventCard key={event.event_id} event={event} onVoid={onVoid} />
       ))}
