@@ -5,3 +5,15 @@ dist
 .DS_Store
 .env
 .env.local
+
+# Vite cache
+.vite/
+
+# TypeScript build cache
+*.tsbuildinfo
+
+# build output
+dist/
+
+# OS
+.DS_Store
